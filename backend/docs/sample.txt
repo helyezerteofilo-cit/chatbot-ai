@@ -1,0 +1,26 @@
+# CI&T Flow RAG Chatbot Documentation
+
+## Overview
+
+The CI&T Flow RAG Chatbot is a powerful tool that combines Retrieval-Augmented Generation (RAG) with CI&T's Flow API to provide context-aware responses. This chatbot can access and utilize information from your documents to provide more accurate and relevant answers.
+
+## Key Features
+
+1. **Document-based Knowledge**: The chatbot can access information from your text and PDF documents.
+2. **Context-Aware Responses**: Using RAG technology, the chatbot retrieves relevant information before generating responses.
+3. **CI&T Flow Integration**: Leverages CI&T's advanced language models through the Flow API.
+4. **Easy API Access**: Simple REST API for integrating the chatbot into your applications.
+
+## Technical Architecture
+
+The chatbot uses a three-step process:
+1. **Retrieval**: When a query is received, the system searches for relevant information in the document database.
+2. **Augmentation**: The retrieved information is added as context to the user's query.
+3. **Generation**: The CI&T Flow API generates a response based on the query and the provided context.
+
+## Use Cases
+
+- **Customer Support**: Provide accurate answers based on product documentation.
+- **Internal Knowledge Base**: Help employees find information from company documents.
+- **Educational Tools**: Create interactive learning experiences based on course materials.
+- **Research Assistant**: Quickly find and synthesize information from research papers.
