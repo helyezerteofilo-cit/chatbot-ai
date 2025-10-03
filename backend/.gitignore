@@ -50,3 +50,5 @@ htmlcov/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+
+.flow_token.json
