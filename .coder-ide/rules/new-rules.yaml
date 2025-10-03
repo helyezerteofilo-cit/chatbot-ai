@@ -1,6 +1,0 @@
-name: New rules
-version: 0.0.1
-schema: v1
-rules:
-  - name: New rule
-    rule: Always give concise responses
