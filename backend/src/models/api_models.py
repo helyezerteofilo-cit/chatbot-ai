@@ -15,11 +15,3 @@ class MessageResponse(BaseModel):
     status: str
     context: Optional[Dict[str, Any]] = None
 
-class HealthResponse(BaseModel):
-    """
-    Response model for health check
-    """
-    status: str
-    message: str
-    rag_status: Optional[Dict[str, Any]] = None
-    api_status: Optional[Dict[str, Any]] = None

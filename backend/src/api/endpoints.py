@@ -1,23 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
-from src.models.api_models import MessageRequest, MessageResponse, HealthResponse
+from fastapi import APIRouter, HTTPException
+from src.models.api_models import MessageRequest, MessageResponse
 from src.services.chatbot_service import ChatbotService
 
 router = APIRouter()
 chatbot_service = ChatbotService()
-
-@router.get("/health", response_model=HealthResponse)
-async def health_check():
-    """
-    Health check endpoint to verify the API and services are working
-    """
-    setup_status = await chatbot_service.setup()
-    
-    return HealthResponse(
-        status="ok",
-        message="API is running",
-        rag_status=setup_status.get("rag_status"),
-        api_status=setup_status.get("api_status")
-    )
 
 @router.post("/chat", response_model=MessageResponse)
 async def chat(request: MessageRequest):
