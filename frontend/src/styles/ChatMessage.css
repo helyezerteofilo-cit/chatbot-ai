@@ -7,6 +7,11 @@
   border-radius: 12px;
 }
 
+/* Adjust max-width for messages with attachments */
+.chat-message:has(.message-attachments) {
+  max-width: 50%;
+}
+
 .user-message {
   align-self: flex-end;
   background-color: #2b5278;
@@ -100,4 +105,57 @@
 .user-message .message-content a {
   color: #a0d7f5;
   text-decoration: underline;
+}
+
+/* Message attachments styling */
+.message-attachments {
+  margin-bottom: 8px;
+  max-width: 100%;
+}
+
+.attachment {
+  display: flex;
+  align-items: center;
+  padding: 6px 10px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  margin-bottom: 4px;
+  font-size: 14px;
+  max-width: 280px; /* Slightly smaller for better fit */
+  cursor: default;
+}
+
+.attachment:last-child {
+  margin-bottom: 0;
+}
+
+.attachment-icon {
+  font-size: 16px;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.attachment-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: inherit;
+  min-width: 0; /* Allow text to shrink */
+  font-size: 13px; /* Slightly smaller font */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .chat-message {
+    max-width: 85%;
+  }
+  
+  .chat-message:has(.message-attachments) {
+    max-width: 80%;
+  }
+  
+  .attachment {
+    max-width: 240px;
+  }
 }

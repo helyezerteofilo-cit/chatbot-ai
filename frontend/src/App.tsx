@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import ChatHistory from './components/ChatHistory';
 import ChatInput from './components/ChatInput';
 import Sidebar from './components/Sidebar';
-import { Message, Chat } from './types';
+import { Message, Chat, MessageAttachment } from './types';
 import { sendMessage } from './services/api';
 import './App.css';
 
@@ -23,6 +23,7 @@ const App: React.FC = () => {
       title: 'New Conversation',
       messages: [],
       createdAt: new Date(),
+      documents: []
     };
     
     setChats(prevChats => [...prevChats, newChat]);
@@ -51,12 +52,19 @@ const App: React.FC = () => {
   }, []);
 
   // Send a message in the current chat
-  const handleSendMessage = useCallback(async (text: string) => {
+  const handleSendMessage = useCallback(async (text: string, attachments?: { id: string; name: string }[]) => {
     // If no active chat, create one
     if (!activeChat) {
       handleNewChat();
       return;
     }
+    
+    // Convert attachments to MessageAttachment format
+    const messageAttachments: MessageAttachment[] = attachments?.map(att => ({
+      id: att.id,
+      name: att.name,
+      type: 'document' as const
+    })) || [];
     
     // Add user message to chat
     const userMessage: Message = {
@@ -64,6 +72,7 @@ const App: React.FC = () => {
       text,
       sender: 'user',
       timestamp: new Date(),
+      attachments: messageAttachments.length > 0 ? messageAttachments : undefined,
     };
     
     // Update the messages in the current chat
@@ -78,7 +87,7 @@ const App: React.FC = () => {
     // Update the chat title if this is the first message
     const chat = chats.find(c => c.id === activeChat);
     if (chat && chat.messages.length === 0) {
-      updateChatTitle(activeChat, text);
+      updateChatTitle(activeChat, text || `Document: ${attachments?.[0]?.name || 'Uploaded'}`);
     }
     
     setIsLoading(true);
@@ -150,7 +159,10 @@ const App: React.FC = () => {
                 Bot is typing...
               </div>
             )}
-            <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
+            <ChatInput 
+              onSendMessage={handleSendMessage} 
+              isLoading={isLoading}
+            />
           </div>
         )}
       </div>

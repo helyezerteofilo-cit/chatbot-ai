@@ -1,4 +1,4 @@
-import { sendMessage } from '../api';
+import { sendMessage, uploadDocument } from '../api';
 import { MessageResponse } from '../../types';
 
 // Mock fetch API
@@ -92,5 +92,67 @@ describe('API Service', () => {
   test.skip('sendMessage uses custom API URL when provided', async () => {
     // This test is skipped because it's difficult to properly mock
     // environment variables in Jest in a way that affects imported modules
+  });
+
+  test('uploadDocument uploads file successfully', async () => {
+    const mockUploadResponse = {
+      status: 'success',
+      message: 'File uploaded successfully',
+      document_id: 'doc123',
+      document_name: 'test.pdf'
+    };
+
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockUploadResponse
+    });
+
+    const file = new File(['test content'], 'test.pdf', { type: 'application/pdf' });
+    const result = await uploadDocument(file);
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      'http://localhost:8000/api/upload',
+      {
+        method: 'POST',
+        body: expect.any(FormData)
+      }
+    );
+
+    expect(result).toEqual(mockUploadResponse);
+  });
+
+  test('uploadDocument handles upload errors', async () => {
+    const errorResponse = {
+      message: 'File too large'
+    };
+
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: false,
+      json: async () => errorResponse
+    });
+
+    const file = new File(['test content'], 'test.pdf', { type: 'application/pdf' });
+    const result = await uploadDocument(file);
+
+    expect(result).toEqual({
+      status: 'error',
+      message: 'File too large'
+    });
+
+    expect(console.error).toHaveBeenCalled();
+  });
+
+  test('uploadDocument handles network errors', async () => {
+    (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
+
+    const file = new File(['test content'], 'test.pdf', { type: 'application/pdf' });
+    const result = await uploadDocument(file);
+
+    expect(result).toEqual({
+      status: 'error',
+      message: 'Network error'
+    });
+
+    expect(console.error).toHaveBeenCalled();
   });
 });

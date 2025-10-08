@@ -35,7 +35,7 @@ describe('ChatInput Component', () => {
     const button = screen.getByRole('button', { name: 'Send' });
     fireEvent.click(button);
     
-    expect(mockSendMessage).toHaveBeenCalledWith('Hello world');
+    expect(mockSendMessage).toHaveBeenCalledWith('Hello world', []);
     expect(input.value).toBe(''); // Input should be cleared after sending
   });
 
@@ -68,7 +68,7 @@ describe('ChatInput Component', () => {
     const button = screen.getByRole('button', { name: 'Send' });
     fireEvent.click(button);
     
-    expect(mockSendMessage).toHaveBeenCalledWith('  Hello world  ');
+    expect(mockSendMessage).toHaveBeenCalledWith('Hello world', []);
   });
 
   test('prevents submission when only whitespace is entered', () => {
@@ -79,5 +79,63 @@ describe('ChatInput Component', () => {
     
     const button = screen.getByRole('button', { name: 'Send' });
     expect(button).toBeDisabled();
+  });
+
+  test('renders attachment button', () => {
+    render(<ChatInput onSendMessage={mockSendMessage} isLoading={false} />);
+    
+    const attachButton = screen.getByTitle('Attach document');
+    expect(attachButton).toBeInTheDocument();
+  });
+
+  test('shows attached files when files are selected', () => {
+    render(<ChatInput onSendMessage={mockSendMessage} isLoading={false} />);
+    
+    const fileInput = document.querySelector('input[type=file]') as HTMLInputElement;
+    const file = new File(['test content'], 'test.pdf', { type: 'application/pdf' });
+    
+    Object.defineProperty(fileInput, 'files', {
+      value: [file],
+      writable: false,
+    });
+    
+    fireEvent.change(fileInput);
+    
+    expect(screen.getByText('test.pdf')).toBeInTheDocument();
+  });
+
+  test('allows removing attached files', () => {
+    render(<ChatInput onSendMessage={mockSendMessage} isLoading={false} />);
+    
+    const fileInput = document.querySelector('input[type=file]') as HTMLInputElement;
+    const file = new File(['test content'], 'test.pdf', { type: 'application/pdf' });
+    
+    Object.defineProperty(fileInput, 'files', {
+      value: [file],
+      writable: false,
+    });
+    
+    fireEvent.change(fileInput);
+    
+    const removeButton = screen.getByTitle('Remove file');
+    fireEvent.click(removeButton);
+    
+    expect(screen.queryByText('test.pdf')).not.toBeInTheDocument();
+  });
+
+  test('changes placeholder when files are attached', () => {
+    render(<ChatInput onSendMessage={mockSendMessage} isLoading={false} />);
+    
+    const fileInput = document.querySelector('input[type=file]') as HTMLInputElement;
+    const file = new File(['test content'], 'test.pdf', { type: 'application/pdf' });
+    
+    Object.defineProperty(fileInput, 'files', {
+      value: [file],
+      writable: false,
+    });
+    
+    fireEvent.change(fileInput);
+    
+    expect(screen.getByPlaceholderText('Add a message (optional)...')).toBeInTheDocument();
   });
 });

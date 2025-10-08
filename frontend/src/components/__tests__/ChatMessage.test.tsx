@@ -44,7 +44,7 @@ describe('ChatMessage Component', () => {
     // Check that markdown component is used
     const markdownElement = screen.getByTestId('markdown');
     expect(markdownElement).toBeInTheDocument();
-    expect(markdownElement).toHaveTextContent('# Hello\nThis is a *markdown* message');
+    expect(markdownElement).toHaveTextContent('# Hello This is a *markdown* message');
     
     // Check message class
     const messageDiv = markdownElement.closest('.chat-message');
@@ -52,5 +52,35 @@ describe('ChatMessage Component', () => {
     
     // Check timestamp format
     expect(screen.getByText(/10:31/)).toBeInTheDocument();
+  });
+
+  test('renders user message without markdown parsing', () => {
+    const userMarkdownMessage = {
+      id: '4',
+      text: '# This should not be a header',
+      sender: 'user' as const,
+      timestamp: new Date('2023-10-08T10:33:00')
+    };
+
+    render(<ChatMessage message={userMarkdownMessage} />);
+    
+    // User messages should not parse markdown
+    expect(screen.getByText('# This should not be a header')).toBeInTheDocument();
+    expect(screen.queryByTestId('markdown')).not.toBeInTheDocument();
+  });
+
+  test('handles empty content gracefully', () => {
+    const emptyMessage = {
+      id: '5',
+      text: '',
+      sender: 'user' as const,
+      timestamp: new Date('2023-10-08T10:34:00')
+    };
+
+    render(<ChatMessage message={emptyMessage} />);
+    
+    const messageDiv = screen.getByText('10:34').closest('.chat-message');
+    expect(messageDiv).toBeInTheDocument();
+    expect(messageDiv).toHaveClass('user-message');
   });
 });

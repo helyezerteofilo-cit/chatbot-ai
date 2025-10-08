@@ -3,6 +3,13 @@ export interface Message {
   text: string;
   sender: 'user' | 'bot';
   timestamp: Date;
+  attachments?: MessageAttachment[];
+}
+
+export interface MessageAttachment {
+  id: string;
+  name: string;
+  type: 'document';
 }
 
 export interface Chat {
@@ -10,6 +17,7 @@ export interface Chat {
   title: string;
   messages: Message[];
   createdAt: Date;
+  documents?: UploadedDocument[];
 }
 
 export interface MessageRequest {
@@ -20,4 +28,16 @@ export interface MessageResponse {
   response: string;
   status: string;
   context?: Record<string, any>;
+}
+
+export interface UploadedDocument {
+  id: string;
+  name: string;
+}
+
+export interface DocumentUploadResponse {
+  status: string;
+  message: string;
+  document_id?: string;
+  document_name?: string;
 }
