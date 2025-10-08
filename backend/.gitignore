@@ -54,3 +54,5 @@ htmlcov/
 .flow_token.json
 uploads/
 venv*/
+
+MagicMock
