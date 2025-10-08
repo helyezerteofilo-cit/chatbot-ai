@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     # CI&T Flow API settings
     FLOW_API_TOKEN: str = os.getenv("FLOW_API_TOKEN", "")
     FLOW_API_BASE_URL: str = os.getenv("FLOW_API_BASE_URL", "https://flow.ciandt.com/ai-orchestration-api/v1/openai")
-    FLOW_AGENT: str = os.getenv("FLOW_AGENT", "Flow Api")
+    FLOW_AGENT: str = os.getenv("FLOW_AGENT", "Flow_Api")
     FLOW_TENANT: str = os.getenv("FLOW_TENANT", "")
     FLOW_MODEL: str = os.getenv("FLOW_MODEL", "gpt-4o-mini")
     
@@ -21,12 +21,16 @@ class Settings(BaseSettings):
     
     # RAG settings
     RAG_DOCUMENTS_FOLDER: str = os.getenv("RAG_DOCUMENTS_FOLDER", "docs")
+    UPLOADS_FOLDER: str = os.getenv("UPLOADS_FOLDER", "uploads")
     
     # Vector store settings
     VECTOR_STORE_PATH: str = os.getenv("VECTOR_STORE_PATH", "vector_store")
     
     # Model settings
     EMBEDDING_MODEL: str = os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2")
+    
+    # Upload settings
+    MAX_UPLOAD_SIZE: int = int(os.getenv("MAX_UPLOAD_SIZE", "10485760"))  # 10MB default
     
     # Use ConfigDict instead of class Config
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)

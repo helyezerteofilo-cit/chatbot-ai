@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.api.endpoints import router as api_router
 from src.services.document_service import DocumentService
+from src.config.settings import settings
 
 if __name__ == "__main__":
     sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -15,6 +16,18 @@ async def lifespan(app: FastAPI):
     """
     Lifespan events for the FastAPI application
     """
+    # Create necessary folders
+    backend_dir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+    documents_folder = os.path.join(backend_dir, settings.RAG_DOCUMENTS_FOLDER)
+    uploads_folder = os.path.join(backend_dir, settings.UPLOADS_FOLDER)
+    
+    os.makedirs(documents_folder, exist_ok=True)
+    os.makedirs(uploads_folder, exist_ok=True)
+    
+    print(f"Documents folder: {documents_folder}")
+    print(f"Uploads folder: {uploads_folder}")
+    
+    # Initialize RAG system
     print("Initializing RAG system...")
     doc_service = DocumentService()
     rag_status = doc_service.setup_rag_system()

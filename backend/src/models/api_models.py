@@ -15,3 +15,11 @@ class MessageResponse(BaseModel):
     status: str
     context: Optional[Dict[str, Any]] = None
 
+class DocumentUploadResponse(BaseModel):
+    """
+    Response model for document uploads
+    """
+    status: str
+    message: str
+    document_id: Optional[str] = None
+    document_name: Optional[str] = None

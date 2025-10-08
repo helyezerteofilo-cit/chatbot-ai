@@ -89,3 +89,73 @@ class TestAPIEndpoints:
         
         # Assert
         assert response.status_code == 422  # Unprocessable Entity
+    
+    @patch('src.api.endpoints.document_service')
+    def test_upload_document_success(self, mock_document_service, test_client):
+        """Tests the document upload endpoint with successful response"""
+        # Arrange
+        mock_document_service.save_uploaded_document.return_value = {
+            "status": "success",
+            "message": "Document uploaded and processed successfully",
+            "document_id": "test-uuid",
+            "document_name": "test.pdf"
+        }
+        
+        # Act
+        with open("tests/test_api.py", "rb") as f:
+            file_content = f.read()
+        
+        response = test_client.post(
+            "/api/upload",
+            files={"file": ("test.pdf", file_content, "application/pdf")}
+        )
+        
+        # Assert
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "success"
+        assert data["document_id"] == "test-uuid"
+        assert data["document_name"] == "test.pdf"
+        mock_document_service.save_uploaded_document.assert_called_once()
+    
+    @patch('src.api.endpoints.document_service')
+    def test_upload_document_error(self, mock_document_service, test_client):
+        """Tests the document upload endpoint with error response"""
+        # Arrange
+        mock_document_service.save_uploaded_document.return_value = {
+            "status": "error",
+            "message": "Error processing document"
+        }
+        
+        # Act
+        with open("tests/test_api.py", "rb") as f:
+            file_content = f.read()
+        
+        response = test_client.post(
+            "/api/upload",
+            files={"file": ("test.pdf", file_content, "application/pdf")}
+        )
+        
+        # Assert
+        assert response.status_code == 500
+        data = response.json()
+        assert data["status"] == "error"
+        assert "Error processing document" in data["message"]
+        mock_document_service.save_uploaded_document.assert_called_once()
+    
+    def test_upload_document_unsupported_type(self, test_client):
+        """Tests the document upload endpoint with unsupported file type"""
+        # Act
+        with open("tests/test_api.py", "rb") as f:
+            file_content = f.read()
+        
+        response = test_client.post(
+            "/api/upload",
+            files={"file": ("test.docx", file_content, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")}
+        )
+        
+        # Assert
+        assert response.status_code == 415
+        data = response.json()
+        assert data["status"] == "error"
+        assert "Unsupported file type" in data["message"]
