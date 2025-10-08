@@ -1,0 +1,40 @@
+.chat-history {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+  background-color: #1a1a1a;
+}
+
+.empty-chat {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: #888;
+  font-style: italic;
+}
+
+/* Add some spacing between messages */
+.chat-message + .chat-message {
+  margin-top: 12px;
+}
+
+/* Scrollbar styling for dark mode */
+.chat-history::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-history::-webkit-scrollbar-track {
+  background: #2c2c2c;
+}
+
+.chat-history::-webkit-scrollbar-thumb {
+  background-color: #4a4a4a;
+  border-radius: 4px;
+}
+
+.chat-history::-webkit-scrollbar-thumb:hover {
+  background-color: #5a5a5a;
+}
