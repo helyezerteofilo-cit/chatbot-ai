@@ -1,6 +1,6 @@
 from typing import Dict, Any, List
 from src.services.flow_api import FlowAPIService
-from src.services.document_service import DocumentService
+from src.services.document import DocumentService
 
 class ChatbotService:
     """

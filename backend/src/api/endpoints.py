@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Depends
 from fastapi.responses import JSONResponse
 from src.models.api_models import MessageRequest, MessageResponse, DocumentUploadResponse
 from src.services.chatbot_service import ChatbotService
-from src.services.document_service import DocumentService
+from src.services.document import DocumentService
 from src.config.settings import settings
 import os
 
