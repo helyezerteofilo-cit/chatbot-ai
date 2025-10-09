@@ -3,6 +3,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage
 from src.config.settings import settings
 from src.utils.token_manager import TokenManager
+from src.config.prompts import PROMPTS
 
 class FlowAPIService:
     """
@@ -47,10 +48,11 @@ class FlowAPIService:
         try:
             chat_model = await self._get_chat_model()
             
-            system_content = "You are a helpful assistant."
             if context_chunks and len(context_chunks) > 0:
                 context_text = "\n\n".join(context_chunks)
-                system_content = f"You are a helpful assistant. Use the following information to answer the user's question:\n\n{context_text}"
+                system_content = PROMPTS["rag"].format(context=context_text)
+            else:
+                system_content = PROMPTS["base"]
             
             messages = [
                 SystemMessage(content=system_content),

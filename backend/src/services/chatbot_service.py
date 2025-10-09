@@ -17,7 +17,6 @@ class ChatbotService:
         Returns:
             Status dictionary
         """
-        # Set up RAG system
         rag_status = self.document_service.setup_rag_system()
         
         return {

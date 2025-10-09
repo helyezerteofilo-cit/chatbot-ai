@@ -37,7 +37,6 @@ async def upload_document(
     Upload a document to be used for RAG
     """
     try:
-        # Check file size
         file_size = 0
         file_content = await file.read()
         file_size = len(file_content)
@@ -51,7 +50,6 @@ async def upload_document(
                 }
             )
         
-        # Check file extension
         filename = file.filename
         _, file_extension = os.path.splitext(filename)
         
@@ -64,7 +62,6 @@ async def upload_document(
                 }
             )
         
-        # Save and process the document
         result = document_service.save_uploaded_document(file_content, filename)
         
         if result["status"] == "error":

@@ -1,6 +1,7 @@
 from typing import List
 from langchain.schema import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from src.utils.chunks_sanitizer import chunks_sanitizer
 
 
 class DocumentProcessor:
@@ -37,19 +38,4 @@ class DocumentProcessor:
         
         chunks = self.text_splitter.split_documents(documents)
         print(f"Split documents into {len(chunks)} chunks")
-        return chunks
-    
-    def update_chunk_settings(self, chunk_size: int, chunk_overlap: int):
-        """
-        Update chunk size and overlap settings
-        
-        Args:
-            chunk_size: New chunk size
-            chunk_overlap: New chunk overlap
-        """
-        self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=chunk_size,
-            chunk_overlap=chunk_overlap,
-            length_function=len
-        )
-        print(f"Updated chunk settings: size={chunk_size}, overlap={chunk_overlap}")
+        return chunks_sanitizer(chunks)

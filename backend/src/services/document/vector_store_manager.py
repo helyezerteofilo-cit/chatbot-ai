@@ -3,7 +3,7 @@ import shutil
 from typing import List, Optional
 from langchain.schema import Document
 from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
 
 
 class VectorStoreManager:
@@ -38,10 +38,8 @@ class VectorStoreManager:
             return None
         
         try:
-            # Clean up existing vector store
             self._cleanup_existing_store()
             
-            # Ensure directory exists
             os.makedirs(self.vector_store_path, exist_ok=True)
             
             print(f"Creating Chroma vector store at: {self.vector_store_path}")
@@ -52,7 +50,6 @@ class VectorStoreManager:
                 persist_directory=self.vector_store_path
             )
             
-            # Update cache
             self._vector_store_cache = vector_store
             print("Vector store created successfully")
             
@@ -69,7 +66,6 @@ class VectorStoreManager:
         Returns:
             Chroma vector store or None if it doesn't exist
         """
-        # Return cached instance if available
         if self._vector_store_cache is not None:
             return self._vector_store_cache
         
@@ -82,7 +78,6 @@ class VectorStoreManager:
                 embedding_function=self.embeddings
             )
             
-            # Cache the loaded instance
             self._vector_store_cache = vector_store
             print("Loaded persistent vector store")
             return vector_store
@@ -147,12 +142,11 @@ class VectorStoreManager:
             True if vector store should be rebuilt, False otherwise
         """
         if not self._vector_store_exists():
-            return True  # Need to build initial store
+            return True
         
         try:
             vector_store_mtime = os.path.getmtime(self.vector_store_path)
             
-            # Check if any documents are newer than the vector store
             for folder in document_folders:
                 if os.path.exists(folder):
                     for root, _, files in os.walk(folder):
@@ -163,7 +157,7 @@ class VectorStoreManager:
             
             return False
         except Exception:
-            return True  # Rebuild on any error
+            return True
     
     def _cleanup_existing_store(self):
         """Clean up existing vector store directory"""

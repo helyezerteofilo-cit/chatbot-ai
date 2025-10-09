@@ -16,14 +16,12 @@ class DocumentService:
     
     def __init__(self):
         """Initialize the document service with all required components"""
-        # Set up paths
         backend_dir = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
         
         self.documents_folder = os.path.join(backend_dir, settings.RAG_DOCUMENTS_FOLDER)
         self.uploads_folder = os.path.join(backend_dir, settings.UPLOADS_FOLDER)
         self.vector_store_path = os.path.join(backend_dir, settings.VECTOR_STORE_PATH)
         
-        # Initialize components
         self.processor = DocumentProcessor(
             chunk_size=1000,
             chunk_overlap=200
@@ -39,7 +37,6 @@ class DocumentService:
             processor=self.processor
         )
         
-        # Create necessary folders
         os.makedirs(self.documents_folder, exist_ok=True)
         os.makedirs(self.uploads_folder, exist_ok=True)
     
@@ -107,7 +104,6 @@ class DocumentService:
             Status dictionary
         """
         try:
-            # Check if vector store is up-to-date
             folder_paths = [self.documents_folder, self.uploads_folder]
             
             existing_vector_store = self.vector_store_manager.load_vector_store()
@@ -117,7 +113,6 @@ class DocumentService:
                     "message": "Vector store is up-to-date, skipping document processing"
                 }
             
-            # Need to rebuild - load and process all documents
             print("Building/rebuilding vector store...")
             documents = self.load_all_documents()
             
@@ -150,7 +145,6 @@ class DocumentService:
             Status dictionary with document information
         """
         try:
-            # Save the uploaded file
             save_result = self.upload_handler.save_uploaded_file(file_content, filename)
             
             if save_result["status"] == "error":
@@ -159,7 +153,6 @@ class DocumentService:
             file_path = save_result["file_path"]
             doc_id = save_result["document_id"]
             
-            # Try to add to existing vector store first
             try:
                 processed_new_docs = self.upload_handler.load_and_process_uploaded_file(file_path)
                 
@@ -171,13 +164,11 @@ class DocumentService:
                         "document_name": filename
                     }
                 else:
-                    # Fallback to full rebuild
                     print("Could not add to existing store, rebuilding...")
                     
             except Exception as e:
                 print(f"Error adding to existing store: {e}, rebuilding...")
             
-            # Rebuild the entire vector store
             rebuild_status = self.setup_rag_system()
             
             if rebuild_status["status"] == "error":
@@ -195,32 +186,3 @@ class DocumentService:
             
         except Exception as e:
             return {"status": "error", "message": f"Error processing upload: {str(e)}"}
-    
-    def get_system_info(self) -> Dict[str, Any]:
-        """
-        Get information about the document system
-        
-        Returns:
-            System information dictionary
-        """
-        try:
-            upload_stats = self.upload_handler.get_upload_stats()
-            
-            # Count documents in main folder
-            main_docs = DocumentLoader.load_from_folder(self.documents_folder)
-            
-            # Check vector store status
-            vector_store_exists = self.vector_store_manager._vector_store_exists()
-            
-            return {
-                "documents_folder": self.documents_folder,
-                "uploads_folder": self.uploads_folder,
-                "vector_store_path": self.vector_store_path,
-                "main_documents_count": len(main_docs),
-                "upload_stats": upload_stats,
-                "vector_store_exists": vector_store_exists,
-                "embedding_model": settings.EMBEDDING_MODEL
-            }
-            
-        except Exception as e:
-            return {"error": f"Error getting system info: {str(e)}"}
