@@ -1,89 +1,206 @@
-# CI&T Flow RAG Chatbot - Backend
+# RAG Chatbot Backend
 
-A chatbot that uses Retrieval-Augmented Generation (RAG) with CI&T Flow API to provide context-aware responses based on your documents.
+This is the backend service for the RAG-powered chatbot application. It provides document processing, vector storage, and AI integration capabilities.
 
-## Features
+## Overview
 
-- Integration with CI&T Flow API for LLM capabilities
-- Document loading and processing (text and PDF files)
-- Document upload functionality for user-provided context
-- RAG implementation for context-aware responses
-- FastAPI backend with API endpoints
+The backend is built with FastAPI and provides a RESTful API for:
+- Processing and storing documents
+- Retrieving relevant information from documents
+- Generating AI responses using RAG (Retrieval-Augmented Generation)
 
 ## Project Structure
 
 ```
 backend/
-├── docs/                  # Folder for storing pre-loaded documents for RAG
-├── uploads/               # Folder for storing user-uploaded documents
 ├── src/
-│   ├── api/               # API endpoints
-│   ├── config/            # Configuration settings
-│   ├── models/            # Pydantic models
-│   ├── services/          # Business logic services
-│   └── main.py            # Main application entry point
-├── .env                   # Environment variables (not in git)
-├── .env.example           # Example environment variables
-├── requirements.txt       # Python dependencies
-└── README.md              # This file
+│   ├── api/
+│   │   └── endpoints.py       # API endpoints for chat and document upload
+│   ├── config/
+│   │   └── settings.py        # Application configuration
+│   ├── services/
+│   │   ├── chatbot_service.py # Coordinates RAG and LLM services
+│   │   ├── flow_api.py        # Integration with CI&T Flow API
+│   │   └── document/          # Document processing module
+│   │       ├── __init__.py    # Package definition and exports
+│   │       ├── document_service.py    # Main document service interface
+│   │       ├── document_loader.py     # Document loading utilities
+│   │       ├── document_processor.py  # Text processing and chunking
+│   │       ├── vector_store_manager.py # Vector database management
+│   │       └── upload_handler.py      # Document upload processing
+│   ├── utils/
+│   │   └── chunks_sanitizer.py # Text cleaning utilities
+│   └── main.py                # Application entry point
+├── docs/                      # Documentation files
+├── uploads/                   # Uploaded documents storage
+├── requirements.txt           # Python dependencies
+├── requirements-dev.txt       # Development dependencies
+└── .env                       # Environment variables (not in git)
 ```
 
-## Setup
+## Setup and Installation
 
-1. Clone the repository
-2. Navigate to the backend directory:
+### Prerequisites
+
+- Python 3.9+
+- pip
+
+### Installation
+
+1. Clone the repository:
    ```bash
-   cd backend
+   git clone https://github.com/yourusername/rag-chatbot.git
+   cd rag-chatbot/backend
    ```
-3. Create a virtual environment:
+
+2. Create a virtual environment:
    ```bash
    python -m venv venv
-   source venv_wsl/bin/activate  # On Windows: venv\Scripts\activate
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
-4. Install dependencies:
+
+3. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
-5. Create a `.env` file based on `.env.example` and fill in your CI&T Flow API token:
-   ```bash
-   cp .env.example .env
-   # Edit .env with your API token
+
+4. Create a `.env` file based on `.env.example` and fill in your CI&T Flow API token:
    ```
-6. Add your documents to the `docs` folder (supported formats: .txt, .pdf)
+   FLOW_API_BASE_URL=your_api_base_url
+   FLOW_MODEL=your_model_name
+   FLOW_AGENT=your_agent_id
+   FLOW_TENANT=your_tenant_id
+   ```
 
-## Running the Application
-
-Start the FastAPI server:
+### Running the Server
 
 ```bash
-cd backend
-python -m src.main
+uvicorn src.main:app --reload
 ```
 
 The API will be available at http://localhost:8000
 
 ## API Endpoints
 
-- `POST /api/chat` - Chat endpoint for sending messages and receiving responses
-- `POST /api/upload` - Upload endpoint for adding documents to the RAG system
+### Chat Endpoint
 
-## Example Usage
-
-```bash
-# Send a message
-curl -X POST http://localhost:8000/api/chat \
-  -H "Content-Type: application/json" \
-  -d '{"message": "What information do you have about project X?"}'
-
-# Upload a document
-curl -X POST http://localhost:8000/api/upload \
-  -F "file=@/path/to/your/document.pdf"
+```
+POST /api/chat
 ```
 
-## Document Upload
+Request body:
+```json
+{
+  "message": "Your question here"
+}
+```
 
-The system supports uploading the following document types:
-- Text files (.txt)
-- PDF files (.pdf)
+Response:
+```json
+{
+  "response": "AI-generated response",
+  "status": "success",
+  "context": {
+    "num_docs_retrieved": 3,
+    "sources": [
+      {
+        "source": "document1.pdf",
+        "page": 5
+      },
+      {
+        "source": "document2.txt",
+        "page": null
+      }
+    ]
+  }
+}
+```
 
-Uploaded documents are automatically processed and added to the RAG system, making their content available for future queries. The maximum upload size is 10MB by default, which can be configured in the `.env` file.
+### Document Upload Endpoint
+
+```
+POST /api/upload
+```
+
+Form data:
+- `file`: The document file (PDF or TXT)
+
+Response:
+```json
+{
+  "status": "success",
+  "message": "Document uploaded successfully",
+  "document_id": "unique-id",
+  "document_name": "document.pdf"
+}
+```
+
+## Key Components
+
+### Document Service
+
+The `DocumentService` class is the main interface for document operations:
+
+- Loading documents from configured folders
+- Processing and chunking documents
+- Managing the vector store
+- Handling document uploads
+
+### Vector Store Manager
+
+The `VectorStoreManager` handles:
+
+- Creating and maintaining the vector database
+- Adding new documents to the store
+- Querying the store for relevant documents
+- Scoring and filtering results by relevance
+
+### Document Processor
+
+The `DocumentProcessor` handles:
+
+- Splitting documents into manageable chunks
+- Processing text for better retrieval
+- Sanitizing text content
+
+### Flow API Service
+
+The `FlowAPIService` handles:
+
+- Authentication with the CI&T Flow API
+- Generating responses using the LLM
+- Providing context from retrieved documents
+
+## Development
+
+### Running Tests
+
+```bash
+pytest
+```
+
+### Adding New Document Types
+
+To add support for new document types:
+
+1. Update the file extension check in `endpoints.py`
+2. Add appropriate document loaders in `document_loader.py`
+
+## Troubleshooting
+
+### Common Issues
+
+- **ModuleNotFoundError: No module named 'langchain_chroma'**
+  
+  Solution: Install the missing package:
+  ```bash
+  pip install langchain-chroma
+  ```
+
+- **Error uploading document**
+  
+  Check that the uploads directory exists and has write permissions.
+
+## License
+
+This project is licensed under the MIT License.
